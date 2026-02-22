@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formUrlQuery, removeKeysFromUrlQuery } from "@/lib/url";
 
 interface Props {
@@ -18,8 +18,13 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: Props) => {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
+  const previousSearchRef = useRef(searchQuery);
 
   useEffect(() => {
+    // Only trigger if search actually changed
+    if (previousSearchRef.current === searchQuery) return;
+
+    previousSearchRef.current = searchQuery;
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery) {
         const newUrl = formUrlQuery({
